@@ -7,7 +7,9 @@ import pandas as pd
 import time
 import datetime
 from pandas import json_normalize
+import sqlalchemy
 from sqlalchemy import create_engine
+from sqlalchemy.types import Integer
 
 #1850147 Tokio, Japan
 #1273294 Delhi, IN
@@ -26,33 +28,41 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
-API_KEY = os.getenv('API_KEY')
+API_KEY = "51f9d590eeeb790b4e8e2d218307f523"
 
 
 async def main():
 
     while True:
         df = pd.DataFrame()
+        eng = create_engine("postgresql://postgre:postgre@127.0.0.1/weather_db")
+        connection = psycopg2.connect(database='weather_db', user='postgre', password='postgre', host='127.0.0.1', port=5432)
+
         try:
-            connection = psycopg2.connect(database=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT)
             cursor = connection.cursor()
 
             for city in CITY_ID:
                 try:
-                    current_date = datetime.datetime.now().strftime('%Y%m%d')
+                    current_date = datetime.datetime.now().isoformat(timespec='minutes') 
                     res = requests.get("http://api.openweathermap.org/data/2.5/weather",
                                 params={'id': city, 'units': 'metric', 'lang': 'ru', 'APPID': API_KEY})
                     data = res.json()
+                    data['dt'] = current_date
+                    data['weather'] = data['weather'][0]['description']
                     df_request = json_normalize(data)
                     df = pd.concat([df, df_request])
-                    cursor.execute("INSERT INTO yami(js1) VALUES ('{}')".format(json.dumps(data)))
-                    connection.commit()
-                    count = cursor.rowcount
-                    print(count, "Record inserted successfully into mobile table")
                 except Exception as e:
                     print("Exception (weather):", e)
                     pass
-                df['dt'] = current_date
+            try:
+                pd.read_sql_table('city_weather', "postgresql://postgre:postgre@127.0.0.1/weather_db")
+                df.to_sql('city_weather', con=eng, if_exists='append', index=False)
+            except:
+                df.to_sql('city_weather', con=eng, if_exists='replace', index=False)
+
+            cursor.execute(("SELECT * FROM city_weather"))
+            count = cursor.rowcount
+            print(count, "Record inserted successfully into mobile table")
         
         except (Exception, psycopg2.Error) as error:
             print("Failed to insert record into mobile table", error)
@@ -64,7 +74,7 @@ async def main():
                 print("PostgreSQL connection is closed")
 
 
-        await asyncio.sleep(10)
+        await asyncio.sleep(3600)
 
 
 asyncio.run(main())
