@@ -1,0 +1,39 @@
+version: '3'
+services:
+  test_datafort:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./cities.py:/app/cities.py
+    command: sh -c "./wait-for-it.sh db:${DB_PORT:-5432} && python collector.py"
+    depends_on:
+      - db
+    restart: unless-stopped
+  db:
+    image: postgres:13.3
+    volumes:
+      - database:/var/lib/postgresql/data
+    ports:
+      - ${DB_PORT:-5432}:${DB_PORT:-5432}
+    environment:
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      DB_PORT: ${DB_PORT:-5432}
+    restart: unless-stopped
+  redis:
+    image: redis:7.0.0-alpine
+    ports:
+      - ${REDIS_PORT:-6379}:6379
+    volumes:
+      - /opt/redis/etc/redis.conf:/usr/local/etc/redis/redis.conf
+      - /opt/redis/data:/data
+    restart: unless-stopped
+    command: /usr/local/etc/redis/redis.conf
+volumes:
+  database: {}
+  redis: {}
+    
