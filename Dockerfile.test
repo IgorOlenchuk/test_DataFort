@@ -2,13 +2,7 @@ FROM python:3.10
 
 WORKDIR /app
 
-COPY . /app/
-COPY db /app/db
-COPY utils /app/utils
-COPY poetry.lock /app/
-COPY pyproject.toml /app/
-COPY wait-for-it.sh /app/
-COPY create_db_if_not_exists.py /app/
+COPY collector /app/
 
 RUN chmod +x /app/wait-for-it.sh
 RUN pip install poetry

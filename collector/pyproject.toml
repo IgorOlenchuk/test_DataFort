@@ -8,13 +8,13 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "3.10.8"
+aiohttp = "3.8.3"
 asyncio = "3.4.3"
 certifi = "2022.9.24"
 charset-normalizer = "2.1.1"
 idna = "3.4"
 numpy = "1.23.4"
 pandas = "1.5.1"
-psycopg2-binary = "2.9.5"
 python-dateutil = "2.8.2"
 python-dotenv = "0.21.0"
 pytz = "2022.6"
@@ -27,7 +27,7 @@ SQLAlchemy-Utils = "^0.38.2"
 cryptography = "^37.0.1"
 sanic = "^22.3.1"
 mypy = "^0.950"
-redis = {extras = ["asyncio"], version = "^4.2.2"}
+psycopg2-binary = "2.9.5"
 
 [tool.poetry.dev-dependencies]
 sqlalchemy-stubs = "^0.4"
