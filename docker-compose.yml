@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.test
-    command: sh -c "./wait-for-it.sh db:${DB_PORT:-5432} && python collector.py"
+    command: sh -c "./wait-for-it.sh db:${DB_PORT:-5432} && python collector_dc.py"
     depends_on:
       - db
     restart: unless-stopped

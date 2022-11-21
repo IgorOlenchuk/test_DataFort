@@ -9,4 +9,4 @@ RUN pip install poetry
 RUN poetry config virtualenvs.create false \
     && poetry install --no-dev
 
-CMD ["python", "collector.py"]
+CMD ["python", "collector_dc.py"]
