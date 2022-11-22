@@ -1,0 +1,12 @@
+FROM python:3.10
+
+WORKDIR /app
+
+COPY collector /app/
+
+RUN chmod +x /app/wait-for-it.sh
+RUN pip install poetry
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev
+
+CMD ["python", "collector_dc.py"]
