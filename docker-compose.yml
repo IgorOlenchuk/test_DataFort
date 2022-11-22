@@ -1,9 +1,17 @@
 version: '3'
 services:
-  test_datafort:
+  collector_pd:
     build:
       context: .
-      dockerfile: Dockerfile.test
+      dockerfile: Dockerfile.pd
+    command: sh -c "./wait-for-it.sh db:${DB_PORT:-5432} && python collector.py"
+    depends_on:
+      - db
+    restart: unless-stopped
+  collector_dc:
+    build:
+      context: .
+      dockerfile: Dockerfile.pd
     command: sh -c "./wait-for-it.sh db:${DB_PORT:-5432} && python collector_dc.py"
     depends_on:
       - db

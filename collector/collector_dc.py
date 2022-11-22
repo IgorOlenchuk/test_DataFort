@@ -29,7 +29,7 @@ async def main():
 @dataclass
 class CityWeather:
     __table__ = Table(
-        config.NAME_TABLE,
+        config.NAME_TABLE_2,
         mapper_registry.metadata,
         Column("id", Integer, primary_key=True),
         Column("date", String(16), nullable=False),
@@ -43,7 +43,7 @@ class CityWeather:
         Column("main_humidity", Integer, nullable=False),
         Column("wind_speed", Float(6), nullable=False),
     )
-    id: int = field(init=False, default_factory=int, metadata={"sa": Column(Integer, primary_key=True)})
+    id: int = field(init=False, metadata={"sa": Column(Integer, primary_key=True)})
     date: str = field(default=None, metadata={"sa": Column(String(16))})
     city: str = field(default=None, metadata={"sa": Column(String(30))})
     weather: str = field(default=None, metadata={"sa": Column(String(30))})
@@ -88,9 +88,10 @@ async def upload_from_api():
 async def upload_to_db(CityWeather):
     Session = sessionmaker(engine)
     cityweather_obj = MetaData(CityWeather)
-    city_weater = Table(
-        config.NAME_TABLE,
+    city_weather_dc = Table(
+        config.NAME_TABLE_2,
         cityweather_obj,
+        Column("id", Integer, primary_key=True),
         Column("date", String(16), nullable=False),
         Column("city", String(30), nullable=False),
         Column("weather", String(30), nullable=False), 
@@ -102,20 +103,10 @@ async def upload_to_db(CityWeather):
         Column("main_humidity", Integer, nullable=False),
         Column("wind_speed", Float(6), nullable=False),
         )
-    city_weater.create(engine, checkfirst=True)
+    city_weather_dc.create(engine, checkfirst=True)
     with Session() as session:
         session.add(CityWeather)
-        # session.add(CityWeather.city)
-        # session.add(CityWeather.weather)
-        # session.add(CityWeather.main_temp)
-        # session.add(CityWeather.main_feels_like)
-        # session.add(CityWeather.main_temp_min)
-        # session.add(CityWeather.main_temp_max)
-        # session.add(CityWeather.main_pressure)
-        # session.add(CityWeather.main_humidity)
-        # session.add(CityWeather.wind_speed)
         session.commit()
-
 
 
 if __name__ == '__main__':
